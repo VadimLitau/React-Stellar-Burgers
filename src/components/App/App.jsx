@@ -1,6 +1,6 @@
 import React from "react";
-import { useEffect, useState } from "react";
-import { burgerDataUrl } from "../../utils/constants.js";
+import { useEffect, useState, useContext } from "react";
+import { baseUrl, checkResponse } from "../../utils/constants.js";
 import mainStyle from "./App.module.css";
 import AppHeader from "../AppHeader/AppHeader";
 import BurgerIngredients from "../BurgerIngredients/BurgerIngredients";
@@ -8,6 +8,7 @@ import BurgerConstructor from "../BurgerConstructor/BurgerConstructor";
 import Modal from "../Modal/Modal";
 import OrderDetails from "../Modal/OrderDetails/OrderDetails";
 import IngredientDetails from "../Modal/IngridientDetails/IngridientDetails";
+import { DataContext, HandleContext } from "../../services/productsContext.js";
 /*Ситуация аналогичная как и в BurgerConstructor */
 function App() {
   const [state, setState] = useState({
@@ -24,24 +25,15 @@ function App() {
     setIngredient(null);
   };
 
-  const openOrderModal = () => {
-    setOrder(true);
-  };
-
   //Состояние выбора ингредиента
   const [currentItem, setIngredient] = useState(null);
 
-  const handleElement = (elem) => {
-    if (elem) {
-      setIngredient(elem);
-    }
-  };
   useEffect(() => {
     const getBurgerData = async () => {
       try {
         setState({ ...state, isLoading: true, hasError: false });
-        fetch(`${burgerDataUrl}` + "ingredients")
-          .then((res) => res.json())
+        fetch(`${baseUrl}` + "ingredients")
+          .then(checkResponse)
           .then((data) => {
             setState({ ...state, burgerData: data.data });
           });
@@ -52,16 +44,16 @@ function App() {
     };
     getBurgerData();
   }, []);
-
   return (
     <section className={mainStyle.page}>
       <AppHeader />
       <main className={mainStyle.content}>
-        <BurgerIngredients
-          handleElement={handleElement}
-          data={state.burgerData}
-        />
-        <BurgerConstructor data={state.burgerData} openModal={openOrderModal} />
+        <DataContext.Provider value={{ state, setState }}>
+          <HandleContext.Provider value={(setOrder, setIngredient)}>
+            <BurgerIngredients />
+            <BurgerConstructor />
+          </HandleContext.Provider>
+        </DataContext.Provider>
       </main>
       {isOrder && (
         <Modal closeModal={closeModals} title="">
