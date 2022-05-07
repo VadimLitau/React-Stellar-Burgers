@@ -1,44 +1,62 @@
 .head {
-  max-width: 600px;
+    width: 600px;
+    max-width: 600px;
 }
+
 .list {
-  list-style: none;
-  width: 100%;
-  margin-left: auto;
-  margin-right: auto;
-  padding-left: 0;
+    list-style: none;
+    width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 0;
 }
+
 .element {
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
-  width: 100%;
-  box-sizing: border-box;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    width: 100%;
+    box-sizing: border-box;
 }
+
+.element_text {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    box-sizing: border-box;
+}
+
 .element:last-child {
-  margin-bottom: 0;
+    margin-bottom: 0;
 }
+
 .element_scroll {
-  max-height: 464px;
-  overflow: auto;
+    max-height: 464px;
+    overflow: auto;
 }
+
 .element_scroll::-webkit-scrollbar-track {
-  background-color: #2f2f37;
+    background-color: #2f2f37;
 }
+
 .element_scroll::-webkit-scrollbar {
-  width: 8px;
-  background-color: #f9f9fd;
+    width: 8px;
+    background-color: #f9f9fd;
 }
+
 .element_scroll::-webkit-scrollbar-thumb {
-  background-color: #8585ad;
+    background-color: #8585ad;
 }
+
 .sell {
-  display: flex;
-  flex-direction: row;
-  justify-content: flex-end;
-  align-items: center;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+    align-items: center;
 }
+
 .logo svg {
-  width: 33px;
-  height: 33px;
+    width: 33px;
+    height: 33px;
 }

@@ -1,0 +1,11 @@
+.element {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.element:last-child {
+    margin-bottom: 0;
+}

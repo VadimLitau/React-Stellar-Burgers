@@ -1,92 +1,137 @@
 import React from "react";
-import PropTypes from "prop-types";
 import ConstructorStyle from "./BurgerConstructor.module.css";
 import {
   Button,
-  DragIcon,
   CurrencyIcon,
 } from "@ya.praktikum/react-developer-burger-ui-components";
-import { ingredientsPropTypes } from "../../utils/constants";
-import Substract from "../../images/BurgerConstructor/Subtract.png";
-
+import Modal from "../Modal/Modal";
+import OrderDetails from "../Modal/OrderDetails/OrderDetails";
 import { ConstructorElement } from "@ya.praktikum/react-developer-burger-ui-components";
-/*Достаточно долго ломал голову, не понимаю как в моей реализации кода, проверить входящие данные, т.к они приходят после работы с .filter и опционно возвращаются массивом
-Проверка через стандртное .propTypes не дает необходимого результата. Допускаю что я неправильно реализовал сам BurgerConstructor*/
-export default function BurgerConstructor({ data, openModal }) {
-  const bun = data.filter((element) => element.type === "bun");
+import { useDispatch, useSelector } from "react-redux";
+import {
+  OPEN_ORDER_MODAL,
+  CLOSE_ORDER_MODAL,
+  ADD_ITEM,
+  addIngredient,
+} from "../../services/actions";
+import { useDrop } from "react-dnd";
+import { v4 as uuidv4 } from "uuid";
+import { getServOrder } from "../../services/actions/index";
+import ChangeItem from "./ChangeItem/ChangeItem";
+
+export default function BurgerConstructor() {
+  const state = useSelector((store) => store);
+  const burgerConstructorItems = useSelector(
+    (store) => store.item.burgerConstructorItems
+  );
+  const orderOverlay = state.item.overlay;
+  const dispatch = useDispatch();
+
+  const closeModal = () => {
+    dispatch({ type: CLOSE_ORDER_MODAL });
+  };
+
+  const bun = state.item.bun;
+  const bunArr = [bun].map((item) => item.id);
+  const burgerConstructorItemsArr = burgerConstructorItems.map(
+    (item) => item.id
+  );
+  const orderId = [...bunArr, ...burgerConstructorItemsArr];
+  const setOrderPrice = () => {
+    return burgerConstructorItems.reduce(
+      (sum, current) => sum + current.price,
+      0 + bun.price ? bun.price * 2 : 0
+    );
+  };
+
+  const getOrder = () => {
+    dispatch(getServOrder(orderId));
+    dispatch({ type: OPEN_ORDER_MODAL });
+  };
+  const handleDrop = (itemId) => {
+    //console.log(itemId);
+    dispatch({
+      type: ADD_ITEM,
+      item: { ...itemId }, //теперь при каждой новой отрисовке ингридиентов конструктора их ключ, не меняется
+    });
+  };
+  const [{ isHover }, dropTarget] = useDrop({
+    accept: "item",
+    drop(itemId) {
+      handleDrop(addIngredient(itemId));
+    },
+    collect: (monitor) => ({
+      isHover: monitor.isOver(),
+    }),
+  });
+
   return (
-    <section className={`${ConstructorStyle.head} ml-10`}>
+    <section className={`${ConstructorStyle.head} ml-10`} ref={dropTarget}>
       <ul className={`${ConstructorStyle.list} mt-25`}>
-        {bun.map((item) => {
-          if (item._id === "60d3b41abdacab0026a733c6") {
-            return (
-              <li key={item._id} className={`${ConstructorStyle.element} pr-4`}>
-                <ConstructorElement
-                  type="top"
-                  isLocked={true}
-                  text={`${item.name} (верх)`}
-                  price={item.price}
-                  thumbnail={item.image}
-                />
-              </li>
-            );
-          }
-        })}
+        {bun.src && (
+          <li key={bun._id} className={`${ConstructorStyle.element} pr-4`}>
+            <ConstructorElement
+              type="top"
+              isLocked={true}
+              text={`${bun.name} (верх)`}
+              price={bun.price}
+              thumbnail={bun.src}
+            />
+          </li>
+        )}
       </ul>
 
       <ul
         className={`${ConstructorStyle.list} ${ConstructorStyle.element_scroll} ml-4 mr-4`}
       >
-        {data.map((item) => {
-          if (item.type != "bun") {
-            return (
-              <li
-                key={item._id}
-                className={`${ConstructorStyle.element}  mb-4 pr-2`}
-              >
-                <span className={`mr-2`}>
-                  <DragIcon />
-                </span>
-                <ConstructorElement
-                  text={item.name}
-                  price={item.price}
-                  thumbnail={item.image}
-                />
-              </li>
-            );
-          }
-        })}
+        {!burgerConstructorItems[0] && (
+          <p
+            className={`${ConstructorStyle.element_text} mb-4 pr-2 text text_type_main-large mt-10 mb-5`}
+          >
+            Соберите свой бургер
+          </p>
+        )}
+        {burgerConstructorItems.map((item, index) => (
+          <ChangeItem item={item} index={index} key={item.key}></ChangeItem>
+        ))}
       </ul>
       <ul className={`${ConstructorStyle.list} mb-10`}>
-        {bun.map((item) => {
-          if (item._id === "60d3b41abdacab0026a733c6") {
-            return (
-              <li key={item._id} className={`${ConstructorStyle.element} pr-4`}>
-                <ConstructorElement
-                  type="bottom"
-                  isLocked={true}
-                  text={`${item.name} (низ)`}
-                  price={item.price}
-                  thumbnail={item.image}
-                />
-              </li>
-            );
-          }
-        })}
+        {bun.name && (
+          <li key={bun._id} className={`${ConstructorStyle.element} pr-4`}>
+            <ConstructorElement
+              type="bottom"
+              isLocked={true}
+              text={`${bun.name} (низ)`}
+              price={bun.price}
+              thumbnail={bun.src}
+            />
+          </li>
+        )}
       </ul>
       <div className={`${ConstructorStyle.sell} mr-4 mb-10`}>
-        <p className={`text text_type_digits-medium mr-3`}>610</p>
+        <p className={`text text_type_digits-medium mr-3`}>{setOrderPrice()}</p>
         <div className={`${ConstructorStyle.logo} pr-10`}>
           <CurrencyIcon />
         </div>
-        <Button type="primary" size="large" onClick={openModal}>
+        {orderOverlay && (
+          <Modal closeModal={closeModal} title={""}>
+            {state.item.servOrderRequest && "Загрузка..."}
+            {state.item.servOrderFailed && "Произошла ошибка"}
+            {!state.item.servOrderRequest && !state.item.servOrderFailed && (
+              <OrderDetails orderNumber={state.item.servOrder} />
+            )}
+          </Modal>
+        )}
+        <Button
+          type="primary"
+          size="large"
+          onClick={getOrder}
+          disabled={bun.price && burgerConstructorItems.length ? false : true}
+        >
           Оформить заказ
         </Button>
       </div>
     </section>
   );
 }
-BurgerConstructor.propTypes = {
-  data: PropTypes.arrayOf(ingredientsPropTypes).isRequired,
-  openModal: PropTypes.func.isRequired,
-};
+//

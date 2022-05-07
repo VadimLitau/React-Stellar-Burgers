@@ -1,20 +1,37 @@
 .head {
-  width: 600px;
-  max-height: 912px;
-  overflow: hidden;
+    width: 600px;
+    max-height: 912px;
+    overflow: hidden;
 }
 
 .list {
-  overflow: auto;
-  max-height: 716px;
-  position: relative;
+    overflow: auto;
+    max-height: 716px;
+    position: relative;
 }
+
 .list::-webkit-scrollbar {
-  width: 8px;
-  background-color: #2f2f37;
+    width: 8px;
+    background-color: #2f2f37;
 }
+
 .list::-webkit-scrollbar-thumb {
-  width: 8px;
-  height: 448px;
-  background-color: #8585ad;
+    width: 8px;
+    height: 448px;
+    background-color: #8585ad;
+}
+
+.itemIngridient {
+    list-style: none;
+    padding: 0;
+    margin-top: 0;
+    margin-bottom: 0;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+}
+
+.headIngridient {
+    display: flex;
+    flex-direction: column;
 }
